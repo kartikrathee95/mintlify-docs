@@ -1,0 +1,18 @@
+---
+title: 'Encrypt Data Using PQC'
+openapi: 'POST /api/post-quantum/encrypt'
+---
+
+## Encrypt Data Using Post-Quantum Cryptography
+
+This endpoint encrypts data using a provided public key and the selected post-quantum cryptographic scheme.
+
+### Request Body
+
+You must provide the data to encrypt and the public key.
+
+```json
+{
+  "raw_data": "data_to_encrypt",
+  "public_key": "base64encodedpublickey"
+}

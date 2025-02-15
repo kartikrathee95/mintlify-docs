@@ -1,16 +1,16 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Post-Quantum Cryptography API",
+    "description": "API for post-quantum cryptographic operations, including key generation and encryption",
+    "version": "1.0.0",
     "license": {
       "name": "MIT"
-    },
-    "version": "1.0.0"
+    }
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "http://54.211.106.155:8000"
     }
   ],
   "security": [
@@ -19,112 +19,244 @@
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
+    "/token/obtain": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Create token",
+        "description": "Generate a new token by providing a username and password",
+        "operationId": "createToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "Token generated successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "access": {
+                      "type": "string"
+                    },
+                    "refresh": {
+                      "type": "string"
+                    }
                   }
                 }
               }
             }
           },
           "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
+            "description": "Invalid credentials or input"
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "/token/refresh": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh token",
+        "description": "Refresh an access token using a valid refresh token",
+        "operationId": "refreshToken",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refresh"
+                ]
+              }
             }
           }
-        ],
+        },
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "200": {
+            "description": "Token refreshed successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object",
+                  "properties": {
+                    "access": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid refresh token or input"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/post-quantum/key/generate": {
+      "post": {
+        "tags": [
+          "PQC"
+        ],
+        "summary": "Generate PQC Keys",
+        "description": "Generate public and private keys for post-quantum cryptography",
+        "operationId": "generatePQCKeys",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EncryptionConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns generated public and private keys",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyPair"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "422": {
+            "description": "Invalid input data"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/post-quantum/encrypt": {
+      "post": {
+        "tags": [
+          "PQC"
+        ],
+        "summary": "Encrypt data using PQC",
+        "description": "Encrypt data using the post-quantum public key",
+        "operationId": "encryptPQCData",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EncryptString"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Encrypted data successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EncryptedData"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input data"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/post-quantum/decrypt": {
+      "post": {
+        "tags": [
+          "PQC"
+        ],
+        "summary": "Decrypt data using PQC",
+        "description": "Decrypt data using the post-quantum private key",
+        "operationId": "decryptPQCData",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecryptString"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decrypted data successfully returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecryptedData"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid input data"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
@@ -132,54 +264,123 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "UserRegistration": {
         "type": "object",
+        "required": [
+          "username",
+          "password",
+          "email"
+        ],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
+          "username": {
             "type": "string"
           },
-          "tag": {
-            "description": "Tag to specify the type",
+          "password": {
+            "type": "string",
+            "format": "password"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
             "type": "string"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
+      "EncryptionConfig": {
+        "type": "object",
         "required": [
-          "error",
-          "message"
+          "language",
+          "cryptographic_scheme",
+          "encryption_level"
         ],
+        "properties": {
+          "language": {
+            "type": "string",
+            "enum": [
+              "python"
+            ]
+          },
+          "cryptographic_scheme": {
+            "type": "string",
+            "enum": [
+              "kyber518",
+              "ml-kem-512"
+            ]
+          },
+          "encryption_level":{
+            "type": "integer"
+          }
+          
+        }
+      },
+      "KeyPair": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
+          "public_key": {
+            "type": "string",
+            "format": "byte"
           },
-          "message": {
+          "private_key": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "EncryptString": {
+        "type": "object",
+        "required": [
+          "raw_data",
+          "public_key"
+        ],
+        "properties": {
+          "raw_data": {
+            "type": "string"
+          },
+          "public_key": {
+            "type": "string"
+          }
+        }
+      },
+      "EncryptedData": {
+        "type": "object",
+        "properties": {
+          "encrypted_data": {
+            "type": "string"
+          }
+        }
+      },
+      "DecryptString": {
+        "type": "object",
+        "required": [
+          "encrypted_data",
+          "private_key"
+        ],
+        "properties": {
+          "encrypted_data": {
+            "type": "string"
+          },
+          "private_key": {
+            "type": "string"
+          }
+        }
+      },
+      "DecryptedData": {
+        "type": "object",
+        "properties": {
+          "decrypted_data": {
             "type": "string"
           }
         }

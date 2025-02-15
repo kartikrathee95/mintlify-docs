@@ -1,0 +1,17 @@
+---
+title: 'Refresh Token'
+openapi: 'POST /api/token/refresh/'
+---
+
+## Refresh Token
+
+This endpoint refreshes your access token using a valid refresh token.
+
+### Request Body
+
+You must provide a valid refresh token to obtain a refreshed access token.
+
+```json
+{
+  "refresh": "string"
+}

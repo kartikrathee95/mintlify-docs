@@ -1,0 +1,18 @@
+---
+title: 'Decrypt Data Using PQC'
+openapi: 'POST /api/post-quantum/decrypt'
+---
+
+## Decrypt Data Using Post-Quantum Cryptography
+
+This endpoint decrypts previously encrypted data using the private key corresponding to the public key that was used for encryption.
+
+### Request Body
+
+You must provide the encrypted data and the private key.
+
+```json
+{
+  "encrypted_data": "base64encrypteddata",
+  "private_key": "base64encodedprivatekey"
+}

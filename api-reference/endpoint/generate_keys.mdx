@@ -1,0 +1,18 @@
+---
+title: 'Generate PQC Keys'
+openapi: 'POST /api/post-quantum/key/generate'
+---
+
+## Generate Post-Quantum Cryptographic Keys
+
+This endpoint allows you to generate a public and private key pair for post-quantum cryptographic schemes like Kyber, ML-KEM, etc.
+
+### Request Body
+
+You must specify the cryptographic scheme and language to use.
+
+```json
+{
+  "language": "python",
+  "cryptographic_scheme": "kyber518"
+}
